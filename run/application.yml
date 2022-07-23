@@ -1,0 +1,41 @@
+
+spring:
+  cloud:
+    function:
+      definition: myStreamBridge
+    stream:
+      binders:
+        solace-src:
+          type: solace
+          environment:
+            solace:
+              java:
+                clientUsername: paulus
+                clientPassword: password
+                host: 'tcp:localhost:55555'
+                msgVpn: lab_vpn
+        solace-dst:
+          type: solace
+          environment:
+            solace:
+              java:
+                clientUsername: paulus
+                clientPassword: password
+                host: 'tcp:localhost:55555'
+                msgVpn: lab2_vpn
+      bindings:
+        myStreamBridge-in-0:
+          destination: testq
+          group: make-durable
+          binder: solace-src
+        myStreamBridge-out-0:
+          # destination: default/topic
+          binder: solace-dst
+      solace:
+        bindings:
+          myStreamBridge-in-0:
+            consumer:
+              addDestinationAsSubscriptionToQueue: false
+              provisionDurableQueue: false
+              queueNameExpression: "destination.trim().replaceAll('[*>]', '_')"
+
